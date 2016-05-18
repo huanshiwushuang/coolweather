@@ -1,8 +1,9 @@
-package com.guohao.db;
+package com.guohao.util;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.guohao.db.CoolWeatherOpenHelper;
 import com.guohao.model.City;
 import com.guohao.model.County;
 import com.guohao.model.Province;
