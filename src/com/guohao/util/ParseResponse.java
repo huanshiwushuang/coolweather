@@ -74,11 +74,12 @@ public class ParseResponse {
 		String[] strings = weatherCodeData.split("\\|");
 		return strings[1];
 	}
-	public static String parseWeatherInfo(Context context, String json, String provinceCity) {
+	public static String parseWeatherInfo(Context context, String json) {
 		try {
 			JSONObject jsonObject = new JSONObject(json);
 			JSONObject jsonObject2 = jsonObject.getJSONObject("weatherinfo");
 			String city = jsonObject2.getString("city");
+			String cityid = jsonObject2.getString("cityid");
 			String temp1 = jsonObject2.getString("temp1");
 			if (temp1.equals("暂无预报")) {
 				return "2";
@@ -89,7 +90,8 @@ public class ParseResponse {
 			
 			SimpleDateFormat format = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-			editor.putString("city", provinceCity+city);
+			editor.putString("city", city);
+			editor.putString("cityid", cityid);
 			editor.putString("releaseTime", "今天"+ptime+"发布");
 			editor.putString("time", format.format(new Date()));
 			editor.putString("weather", weather);

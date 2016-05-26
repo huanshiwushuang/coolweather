@@ -51,6 +51,8 @@ public class ChooseAreaActivity	extends Activity implements OnItemClickListener 
 	private City selectedCity;
 	private County selectedCounty;
 	
+	private Boolean s;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +63,14 @@ public class ChooseAreaActivity	extends Activity implements OnItemClickListener 
 		initView();
 		showProvince();
 	}
-	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		s = getIntent().getBooleanExtra("fromWeather", false);
+		if (s) {
+			showProvince();
+		}
+	}
 	private void initView() {
 		title = (TextView) findViewById(R.id.title);
 		listView = (ListView) findViewById(R.id.listView);
@@ -188,7 +197,7 @@ public class ChooseAreaActivity	extends Activity implements OnItemClickListener 
 						@Override
 						public void run() {
 							closeProgressDialog();
-							String s = ParseResponse.parseWeatherInfo(ChooseAreaActivity.this, response, "ÖÐ¹ú."+selectedProvince.getProvinceName()+"."+selectedCity.getCityName()+".");
+							String s = ParseResponse.parseWeatherInfo(ChooseAreaActivity.this, response);
 							if (s.equals("1")) {
 								Weather.actionStart(ChooseAreaActivity.this);
 							}else if (s.equals("2")) {

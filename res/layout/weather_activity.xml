@@ -4,15 +4,38 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/showCountyName"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#ccc"
-        android:gravity="center"
-        android:text="广元"
-        android:textColor="#fff"
-        android:textSize="25sp" />
+        android:layout_height="60dp" >
+
+        <TextView
+            android:id="@+id/showCountyName"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#003333"
+            android:gravity="center"
+            android:text="广元"
+            android:textColor="#fff"
+            android:textSize="25sp" />
+
+        <ImageView
+            android:id="@+id/showHome"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/home" />
+
+        <ImageView
+            android:id="@+id/refresh"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/refresh" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -59,8 +82,8 @@
                 android:id="@+id/temperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3℃ ~ 6℃"
                 android:layout_marginTop="10dp"
+                android:text="3℃ ~ 6℃"
                 android:textColor="#fff"
                 android:textSize="24sp" />
         </LinearLayout>
