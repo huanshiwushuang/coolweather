@@ -17,6 +17,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -42,10 +43,13 @@ public class ChooseAreaActivity	extends Activity implements OnItemClickListener 
 	private List<County> counties;
 	private ArrayAdapter<String> adapter;
 	private ProgressDialog progressDialog;
+	private String weatherCode;
+	private String address;
 	
 	//选中的省、市
 	private Province selectedProvince;
 	private City selectedCity;
+	private County selectedCounty;
 	
 	
 	@Override
@@ -81,12 +85,17 @@ public class ChooseAreaActivity	extends Activity implements OnItemClickListener 
 			selectedCity = cities.get(position);
 			showCounty();
 			break;
+		case LEVEL_COUNTY:
+			selectedCounty = counties.get(position);
+			showWeatherInfo();
+			break;
 		default:
 			Toast.makeText(this, "default", Toast.LENGTH_SHORT).show();
 			break;
 		}
 	}
 
+	
 	private void showProvince() {
 		provinces = coolWeatherDB.loadProvince();
 		if (provinces.size() > 0) {
@@ -135,8 +144,82 @@ public class ChooseAreaActivity	extends Activity implements OnItemClickListener 
 		}
 	}
 	
+	
+	
+	private void showWeatherInfo() {
+		
+		String countyCode = selectedCounty.getCountyCode();
+		address = "http://www.weather.com.cn/data/list3/city"+countyCode+".xml";
+		if (!TextUtils.isEmpty(countyCode)) {
+			showProgressDialog();
+			HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
+				
+				@Override
+				public void onFinish(String response) {
+					weatherCode = ParseResponse.parseWeatherCode(response);
+					getWeatherData();
+				}
+				@Override
+				public void onError(Exception e) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							closeProgressDialog();
+							Toast.makeText(ChooseAreaActivity.this, "加载失败3", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			});
+		}
+		
+		
+	}
+	
+	private void getWeatherData() {
+		if (!TextUtils.isEmpty(weatherCode)) {
+			address = "http://www.weather.com.cn/adat/cityinfo/"+weatherCode+".html";
+			Log.d("guohao", "天气网址："+address);
+			HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
+				
+				@Override 
+				public void onFinish(final String response) {
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							closeProgressDialog();
+							String s = ParseResponse.parseWeatherInfo(ChooseAreaActivity.this, response, "中国."+selectedProvince.getProvinceName()+"."+selectedCity.getCityName()+".");
+							if (s.equals("1")) {
+								Weather.actionStart(ChooseAreaActivity.this);
+							}else if (s.equals("2")) {
+								Toast.makeText(ChooseAreaActivity.this, "暂无预报", Toast.LENGTH_SHORT).show();
+							}else {
+								Toast.makeText(ChooseAreaActivity.this, "解析JSON 数据错误", Toast.LENGTH_SHORT).show();
+							}
+						}
+					});
+				}
+				
+				@Override
+				public void onError(final Exception e) {
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							closeProgressDialog();
+							Toast.makeText(ChooseAreaActivity.this, "加载失败8", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			});
+		}else {
+			closeProgressDialog();
+			Toast.makeText(this, "加载失败5", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
 	private void showFromServer(String code, final int type) {
-		String address = "http://www.weather.com.cn/data/list3/city.xml";
+		address = "http://www.weather.com.cn/data/list3/city.xml";
 		if (!TextUtils.isEmpty(code)) {
 			address = "http://www.weather.com.cn/data/list3/city"+code+".xml";
 		}
@@ -179,10 +262,7 @@ public class ChooseAreaActivity	extends Activity implements OnItemClickListener 
 							default:
 								break;
 							}
-							
 						}
-
-						
 					});
 				}
 			}

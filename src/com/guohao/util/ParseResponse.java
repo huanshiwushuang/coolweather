@@ -1,9 +1,21 @@
 package com.guohao.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.guohao.model.City;
 import com.guohao.model.County;
 import com.guohao.model.Province;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.graphics.AvoidXfermode.Mode;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 public class ParseResponse {
@@ -57,5 +69,36 @@ public class ParseResponse {
 			}
 		}
 		return false;
+	}
+	public synchronized static String parseWeatherCode(String weatherCodeData) {
+		String[] strings = weatherCodeData.split("\\|");
+		return strings[1];
+	}
+	public static String parseWeatherInfo(Context context, String json, String provinceCity) {
+		try {
+			JSONObject jsonObject = new JSONObject(json);
+			JSONObject jsonObject2 = jsonObject.getJSONObject("weatherinfo");
+			String city = jsonObject2.getString("city");
+			String temp1 = jsonObject2.getString("temp1");
+			if (temp1.equals("暂无预报")) {
+				return "2";
+			}
+			String temp2 = jsonObject2.getString("temp2");
+			String weather = jsonObject2.getString("weather");
+			String ptime = jsonObject2.getString("ptime");
+			
+			SimpleDateFormat format = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
+			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+			editor.putString("city", provinceCity+city);
+			editor.putString("releaseTime", "今天"+ptime+"发布");
+			editor.putString("time", format.format(new Date()));
+			editor.putString("weather", weather);
+			editor.putString("temperature", temp2+"~"+temp1);
+			editor.commit();
+			return "1";
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return "0";
+		}
 	}
 }
